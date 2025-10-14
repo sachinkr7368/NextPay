@@ -7,3 +7,7 @@ startCommand = "node dist/main"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
+[source]
+repository = "https://github.com/sachinkr7368/NextPay"
+branch = "main"
+
