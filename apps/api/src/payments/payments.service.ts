@@ -122,25 +122,14 @@ export class PaymentsService {
     let event: Stripe.Event;
 
     try {
-      // For Railway, we might need to handle the case where signature verification fails
-      // due to infrastructure parsing. Let's try to parse the event directly if signature fails.
-      try {
-        event = this.stripe.webhooks.constructEvent(
-          payload,
-          signature,
-          webhookSecret,
-        );
-        console.log(`Webhook received: ${event.type} (signature verified)`);
-      } catch (signatureError) {
-        console.warn('Signature verification failed, attempting direct parsing:', signatureError.message);
-        
-        // Fallback: parse the event directly (less secure but works with Railway)
-        const eventData = JSON.parse(payload.toString());
-        event = eventData as Stripe.Event;
-        console.log(`Webhook received: ${event.type} (direct parsing - signature verification skipped)`);
-      }
+      event = this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        webhookSecret,
+      );
+      console.log(`Webhook received: ${event.type}`);
     } catch (err) {
-      console.error('Webhook parsing failed:', err.message);
+      console.error('Webhook signature verification failed:', err.message);
       throw new Error(`Webhook Error: ${err.message}`);
     }
 

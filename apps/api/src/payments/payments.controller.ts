@@ -81,28 +81,11 @@ export class PaymentsController {
     console.log('Webhook received:', {
       hasSignature: !!signature,
       hasRawBody: !!req.rawBody,
-      bodyType: typeof req.body,
       rawBodyType: typeof req.rawBody,
-      bodyLength: req.body ? JSON.stringify(req.body).length : 0,
       rawBodyLength: req.rawBody ? req.rawBody.length : 0,
-      signatureHeader: signature,
     });
     
-    // Try to get raw body, fallback to stringified body if raw body not available
-    let payload: Buffer;
-    if (req.rawBody && Buffer.isBuffer(req.rawBody)) {
-      payload = req.rawBody;
-      console.log('Using raw body:', payload.length, 'bytes');
-    } else if (req.body) {
-      // Fallback: reconstruct raw body from parsed JSON
-      payload = Buffer.from(JSON.stringify(req.body));
-      console.log('Using reconstructed body from JSON:', payload.length, 'bytes');
-    } else {
-      payload = Buffer.from('');
-      console.log('No body available');
-    }
-    
-    return this.paymentsService.handleWebhook(signature, payload);
+    return this.paymentsService.handleWebhook(signature, req.rawBody || Buffer.from(''));
   }
 
   @Get('debug/config')
