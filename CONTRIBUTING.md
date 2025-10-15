@@ -10,7 +10,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/yourusername/nextpay/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/sachinkr7368/nextpay/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -32,7 +32,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 1. **Fork the repository**
 
    ```bash
-   git clone https://github.com/yourusername/nextpay.git
+   git clone https://github.com/sachinkr7368/nextpay.git
    cd nextpay
    ```
 
@@ -210,11 +210,11 @@ describe("Auth (e2e)", () => {
 
 ### Feature Requests
 
-Check the [Issues](https://github.com/yourusername/nextpay/issues) page for requested features.
+Check the [Issues](https://github.com/sachinkr7368/nextpay/issues) page for requested features.
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/yourusername/nextpay/discussions)
+- Open a [Discussion](https://github.com/sachinkr7368/nextpay/discussions)
 - Join our [Discord](https://discord.gg/nextpay)
 - Email: contribute@nextpay.com
 

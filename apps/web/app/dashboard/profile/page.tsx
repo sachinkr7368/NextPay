@@ -9,18 +9,27 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { RefreshCw, Crown } from 'lucide-react'
 import apiClient from '@/lib/axios'
+import useSWR from 'swr'
+
+const fetcher = (url: string) => apiClient.get(url).then(res => res.data)
 
 export default function ProfilePage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [syncing, setSyncing] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     bio: '',
     avatar: '',
+    plan: 'free',
   })
+
+  const { data: subscription, mutate } = useSWR('/payments/subscription', fetcher)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -40,6 +49,7 @@ export default function ProfilePage() {
         email: response.data.email || '',
         bio: response.data.bio || '',
         avatar: response.data.avatar || '',
+        plan: response.data.plan || 'free',
       })
     } catch (error) {
       console.error('Failed to fetch profile', error)
@@ -51,9 +61,13 @@ export default function ProfilePage() {
     setLoading(true)
 
     try {
-      // Don't send email in update request as it's not allowed by the backend
-      const { email, ...updateData } = formData
+      // Don't send email or plan in update request
+      const { email, plan, ...updateData } = formData
       await apiClient.patch('/users/me', updateData)
+      
+      // Refresh profile data
+      await fetchProfile()
+      
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
@@ -69,6 +83,36 @@ export default function ProfilePage() {
     }
   }
 
+  const handleSyncSubscription = async () => {
+    setSyncing(true)
+    try {
+      const response = await apiClient.post('/payments/sync-subscription')
+      
+      if (response.data.synced) {
+        toast({
+          title: 'Plan Updated!',
+          description: `Your plan has been updated from ${response.data.oldPlan} to ${response.data.newPlan}`,
+        })
+        // Refresh both subscription and profile data
+        mutate()
+        await fetchProfile()
+      } else {
+        toast({
+          title: 'Already Up to Date',
+          description: response.data.message,
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Sync Failed',
+        description: error.response?.data?.message || 'Failed to sync subscription',
+        variant: 'destructive',
+      })
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -79,6 +123,61 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Plan</CardTitle>
+              <CardDescription>
+                Your subscription plan and status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Crown className="h-8 w-8 text-primary" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-2xl font-bold capitalize">{formData.plan} Plan</h3>
+                      {formData.plan !== 'free' && (
+                        <Badge variant="default">Premium</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {formData.plan === 'free' && 'Upgrade to unlock all features'}
+                      {formData.plan === 'pro' && 'Advanced features unlocked'}
+                      {formData.plan === 'enterprise' && 'All features unlocked'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleSyncSubscription}
+                    disabled={syncing}
+                  >
+                    {syncing ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Syncing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => router.push('/pricing')}
+                  >
+                    {formData.plan === 'free' ? 'Upgrade' : 'Change Plan'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>

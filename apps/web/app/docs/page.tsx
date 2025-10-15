@@ -813,7 +813,7 @@ Authorization: Bearer &lt;your-jwt-token&gt;
                 </a>
               </Button>
               <Button variant="outline" asChild>
-                <a href="https://github.com/yourusername/nextpay" target="_blank">
+                <a href="https://github.com/sachinkr7368/nextpay" target="_blank">
                   GitHub
                 </a>
               </Button>
