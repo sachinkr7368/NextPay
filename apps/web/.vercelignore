@@ -11,3 +11,6 @@ README.md
 .DS_Store
 coverage
 .nyc_output
+# Exclude API folder to avoid dependency conflicts
+../api
+../../apps/api
