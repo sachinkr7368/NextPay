@@ -803,7 +803,7 @@ Authorization: Bearer &lt;your-jwt-token&gt;
             </p>
             <div className="flex justify-center gap-4">
               <Button variant="outline" asChild>
-                <a href="http://localhost:3001/api/docs" target="_blank">
+                <a href="https://nextpay-production.up.railway.app/api/docs" target="_blank">
                   API Docs
                 </a>
               </Button>
