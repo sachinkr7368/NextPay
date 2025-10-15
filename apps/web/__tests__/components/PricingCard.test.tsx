@@ -7,7 +7,7 @@ describe('PricingCard', () => {
   const defaultProps = {
     name: 'Pro',
     description: 'For growing businesses',
-    price: '$29',
+    price: '$15',
     features: ['10 users', 'All features', 'Priority support'],
     onSelect: mockOnSelect,
   }
@@ -17,7 +17,7 @@ describe('PricingCard', () => {
     
     expect(screen.getByText('Pro')).toBeInTheDocument()
     expect(screen.getByText('For growing businesses')).toBeInTheDocument()
-    expect(screen.getByText('$29')).toBeInTheDocument()
+    expect(screen.getByText('$15')).toBeInTheDocument()
     expect(screen.getByText('10 users')).toBeInTheDocument()
   })
 

@@ -38,8 +38,8 @@
 
 - Complete subscription plan details:
   - **Free Plan**: $0/month (1 user, basic features)
-  - **Pro Plan**: $29/month (10 users, all features, priority support)
-  - **Enterprise Plan**: $99/month (unlimited users, 24/7 support)
+  - **Pro Plan**: $15/month (10 users, all features, priority support)
+  - **Enterprise Plan**: $25/month (unlimited users, 24/7 support)
 - Step-by-step subscription guide
 - Billing management features:
   - View subscription status

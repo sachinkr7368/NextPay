@@ -109,7 +109,7 @@ export default function DashboardPage() {
                       2 hours ago
                     </p>
                   </div>
-                  <div className="ml-auto font-medium">+$29.00</div>
+                  <div className="ml-auto font-medium">+$15.00</div>
                 </div>
                 <div className="flex items-center">
                   <div className="ml-4 space-y-1">

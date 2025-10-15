@@ -15,7 +15,7 @@
 
    ```
    Name: Pro Plan
-   Price: $29/month
+   Price: $15/month
    → Save → Copy Price ID: price_________________
    ```
 
@@ -23,7 +23,7 @@
 
    ```
    Name: Enterprise Plan
-   Price: $99/month
+   Price: $25/month
    → Save → Copy Price ID: price_________________
    ```
 

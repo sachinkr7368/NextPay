@@ -185,14 +185,14 @@ export default function AdminPage() {
                   </div>
                   <div className="border rounded-lg p-4">
                     <h3 className="font-bold text-lg mb-2">Pro</h3>
-                    <p className="text-3xl font-bold mb-4">$29</p>
+                    <p className="text-3xl font-bold mb-4">$15</p>
                     <p className="text-sm text-muted-foreground">
                       {stats?.proPlanUsers || 0} users
                     </p>
                   </div>
                   <div className="border rounded-lg p-4">
                     <h3 className="font-bold text-lg mb-2">Enterprise</h3>
-                    <p className="text-3xl font-bold mb-4">$99</p>
+                    <p className="text-3xl font-bold mb-4">$25</p>
                     <p className="text-sm text-muted-foreground">
                       {stats?.enterprisePlanUsers || 0} users
                     </p>

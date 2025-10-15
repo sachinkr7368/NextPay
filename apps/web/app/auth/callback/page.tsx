@@ -28,7 +28,8 @@ function AuthCallbackContent() {
         localStorage.setItem('token', token);
 
         // Verify token is valid by fetching user profile
-        const response = await fetch('http://localhost:3001/api/users/me', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${apiUrl}/users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

@@ -41,7 +41,7 @@ This guide will walk you through setting up Stripe payments and Google OAuth aut
    ```
 4. Under "Pricing":
    ```
-   Price: $29.00 USD
+   Price: $15.00 USD
    Billing period: Monthly
    ```
 5. Click "Save product"
@@ -57,7 +57,7 @@ This guide will walk you through setting up Stripe payments and Google OAuth aut
    ```
 3. Under "Pricing":
    ```
-   Price: $99.00 USD
+   Price: $25.00 USD
    Billing period: Monthly
    ```
 4. Click "Save product"

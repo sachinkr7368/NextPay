@@ -24,7 +24,7 @@ A complete, production-ready SaaS starter built with modern technologies. Launch
 ### 💳 Payment & Subscriptions
 
 - **Stripe integration** for payment processing
-- Three subscription tiers: Free, Pro ($29/mo), Enterprise ($99/mo)
+- Three subscription tiers: Free, Pro ($15/mo), Enterprise ($25/mo)
 - Stripe checkout sessions
 - Customer portal for subscription management
 - Invoice history and billing management

@@ -337,7 +337,7 @@ export default function DocsPage() {
                         <div className="p-4 border-2 border-primary rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <strong>Pro Plan</strong>
-                            <Badge>$29/month</Badge>
+                            <Badge>$15/month</Badge>
                           </div>
                           <ul className="space-y-1 text-sm text-muted-foreground">
                             <li>• 10 users</li>
@@ -351,7 +351,7 @@ export default function DocsPage() {
                         <div className="p-4 border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <strong>Enterprise Plan</strong>
-                            <Badge variant="outline">$99/month</Badge>
+                            <Badge variant="outline">$25/month</Badge>
                           </div>
                           <ul className="space-y-1 text-sm text-muted-foreground">
                             <li>• Unlimited users</li>
