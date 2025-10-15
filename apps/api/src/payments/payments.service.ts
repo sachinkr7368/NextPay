@@ -237,12 +237,45 @@ export class PaymentsService {
         return;
       }
 
+      console.log('Customer metadata:', customer.metadata);
+      console.log('Customer email:', customer.email);
+
       const userId = customer.metadata?.userId;
       if (!userId) {
         console.error('No userId in customer metadata for subscription:', subscription.id);
+        console.error('Customer metadata:', customer.metadata);
+        console.error('Customer email:', customer.email);
+        
+        // Try to find user by email as fallback
+        if (customer.email) {
+          try {
+            const user = await this.usersService.findByEmail(customer.email);
+            if (user) {
+              console.log(`Found user by email: ${user.id}`);
+              // Update the customer metadata with the correct userId
+              await this.stripe.customers.update(customer.id, {
+                metadata: { ...customer.metadata, userId: user.id }
+              });
+              // Continue with the found user
+              await this.processSubscriptionChange(user.id, subscription, customer);
+              return;
+            }
+          } catch (error) {
+            console.error('Error finding user by email:', error);
+          }
+        }
         return;
       }
 
+      await this.processSubscriptionChange(userId, subscription, customer);
+    } catch (error) {
+      console.error('Error in handleSubscriptionChange:', error);
+      throw error;
+    }
+  }
+
+  private async processSubscriptionChange(userId: string, subscription: Stripe.Subscription, customer: any) {
+    try {
       console.log(`Processing subscription change for user ${userId}: ${subscription.status}`);
 
       if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
@@ -259,14 +292,14 @@ export class PaymentsService {
         if (priceId) {
           const proPriceId = this.configService.get('STRIPE_PRICE_PRO');
           const enterprisePriceId = this.configService.get('STRIPE_PRICE_ENTERPRISE');
-          
+
           let plan = 'free';
           if (priceId === proPriceId) {
             plan = 'pro';
           } else if (priceId === enterprisePriceId) {
             plan = 'enterprise';
           }
-          
+
           await this.usersService.updateSubscription(
             userId,
             plan,
@@ -277,7 +310,7 @@ export class PaymentsService {
         }
       }
     } catch (error) {
-      console.error('Error in handleSubscriptionChange:', error);
+      console.error('Error in processSubscriptionChange:', error);
       throw error;
     }
   }
