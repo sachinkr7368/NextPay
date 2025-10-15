@@ -101,5 +101,15 @@ export class PaymentsController {
   async debugConfig() {
     return this.paymentsService.debugConfig();
   }
+
+  @Get('debug/webhook-test')
+  @ApiOperation({ summary: 'Test webhook endpoint' })
+  async testWebhook() {
+    return { 
+      message: 'Webhook endpoint is working',
+      timestamp: new Date().toISOString(),
+      version: '2.0'
+    };
+  }
 }
 
