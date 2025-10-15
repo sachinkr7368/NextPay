@@ -141,7 +141,7 @@ export default function HomePage() {
               <Link href="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
                 Dashboard
               </Link>
-              <a href="http://localhost:3001/api/docs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="https://nextpay-production.up.railway.app/api/docs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 API Docs
               </a>
             </div>
