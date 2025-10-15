@@ -12,6 +12,7 @@ interface PricingCardProps {
   isCurrentPlan?: boolean
   isLoading?: boolean
   isDisabled?: boolean
+  onManage?: () => void
 }
 
 export function PricingCard({ 
@@ -23,7 +24,8 @@ export function PricingCard({
   onSelect,
   isCurrentPlan = false,
   isLoading = false,
-  isDisabled = false
+  isDisabled = false,
+  onManage
 }: PricingCardProps) {
   return (
     <Card className={`relative ${
@@ -66,25 +68,40 @@ export function PricingCard({
         </ul>
       </CardContent>
       <CardFooter>
-        <Button 
-          className="w-full" 
-          variant={
-            isCurrentPlan ? 'secondary' : 
-            popular ? 'default' : 'outline'
-          }
-          onClick={onSelect}
-          disabled={isDisabled || isLoading}
-        >
-          {isLoading ? (
-            'Processing...'
-          ) : isCurrentPlan ? (
-            'Current Plan'
-          ) : price === 'Free' ? (
-            'Get Started'
-          ) : (
-            'Subscribe'
-          )}
-        </Button>
+        {isCurrentPlan && price !== 'Free' && onManage ? (
+          <div className="w-full space-y-2">
+            <Button 
+              className="w-full" 
+              variant="default"
+              onClick={onManage}
+            >
+              Manage Subscription
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              Cancel, change plan, or update payment method
+            </p>
+          </div>
+        ) : (
+          <Button 
+            className="w-full" 
+            variant={
+              isCurrentPlan ? 'secondary' : 
+              popular ? 'default' : 'outline'
+            }
+            onClick={onSelect}
+            disabled={isDisabled || isLoading}
+          >
+            {isLoading ? (
+              'Processing...'
+            ) : isCurrentPlan ? (
+              'Current Plan'
+            ) : price === 'Free' ? (
+              'Get Started'
+            ) : (
+              'Subscribe'
+            )}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

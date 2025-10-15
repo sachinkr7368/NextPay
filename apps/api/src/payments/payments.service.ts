@@ -185,6 +185,29 @@ export class PaymentsService {
     return { received: true, mode: 'railway' };
   }
 
+  async cancelSubscription(userId: string) {
+    const user = await this.usersService.findOne(userId);
+    
+    if (!user.stripeSubscriptionId) {
+      throw new Error('No active subscription found');
+    }
+
+    const subscription = await this.stripe.subscriptions.cancel(user.stripeSubscriptionId);
+    
+    // Update user plan to free
+    await this.usersService.updateSubscription(userId, 'free', user.stripeCustomerId, undefined);
+    
+    return {
+      success: true,
+      message: 'Subscription cancelled successfully',
+      subscription: {
+        id: subscription.id,
+        status: subscription.status,
+        canceledAt: subscription.canceled_at,
+      }
+    };
+  }
+
   private async handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const userId = session.metadata?.userId;
     if (!userId) {

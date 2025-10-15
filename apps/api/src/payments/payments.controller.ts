@@ -111,5 +111,13 @@ export class PaymentsController {
       version: '2.0'
     };
   }
+
+  @Post('cancel-subscription')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cancel user subscription' })
+  async cancelSubscription(@Request() req: any) {
+    return this.paymentsService.cancelSubscription(req.user.id);
+  }
 }
 

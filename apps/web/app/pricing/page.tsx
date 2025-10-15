@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { PricingCard } from '@/components/pricing-card'
 import { useToast } from '@/components/ui/use-toast'
+import { Button } from '@/components/ui/button'
 import { Check } from 'lucide-react'
 import apiClient from '@/lib/axios'
 import useSWR from 'swr'
@@ -93,25 +94,6 @@ export default function PricingPage() {
       return
     }
 
-    // Check if trying to downgrade (not allowed for now)
-    if (currentPlan === 'enterprise' && planName === 'pro') {
-      toast({
-        title: 'Downgrade Not Available',
-        description: 'Please contact support to downgrade your plan.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (currentPlan === 'pro' && planName === 'free') {
-      toast({
-        title: 'Downgrade Not Available',
-        description: 'Please contact support to downgrade your plan.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     if (plan.priceId === null) {
       toast({
         title: 'Already on free plan',
@@ -137,6 +119,21 @@ export default function PricingPage() {
       })
     } finally {
       setLoadingPlan(null)
+    }
+  }
+
+  const handleManageSubscription = async () => {
+    try {
+      const response = await apiClient.post('/payments/create-portal-session')
+      if (response.data.url) {
+        window.location.href = response.data.url
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to open billing portal',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -181,6 +178,7 @@ export default function PricingPage() {
                 features={plan.features}
                 popular={plan.popular && !isCurrentPlan}
                 onSelect={() => handleSelectPlan(plan)}
+                onManage={isCurrentPlan && planName !== 'free' ? handleManageSubscription : undefined}
                 isCurrentPlan={isCurrentPlan}
                 isLoading={loadingPlan === planName}
                 isDisabled={isCurrentPlan || isDowngrade}
@@ -188,6 +186,36 @@ export default function PricingPage() {
             )
           })}
         </div>
+
+        {/* Subscription Management Section */}
+        {currentPlan && currentPlan !== 'free' && (
+          <div className="mt-16 max-w-2xl mx-auto">
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                Manage Your Subscription
+              </h3>
+              <p className="text-blue-800 dark:text-blue-200 mb-4">
+                You're currently on the <strong>{currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}</strong> plan. 
+                Use the billing portal to manage your subscription, update payment methods, or cancel anytime.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  onClick={handleManageSubscription}
+                  className="flex-1"
+                >
+                  Open Billing Portal
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push('/dashboard/billing')}
+                  className="flex-1"
+                >
+                  View Billing Details
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-16 text-center text-muted-foreground">
           <p>All plans include a 14-day free trial. No credit card required.</p>
