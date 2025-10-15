@@ -32,8 +32,8 @@ JWT_EXPIRES_IN=7d
 ### Google OAuth Configuration
 
 ```
-GOOGLE_CLIENT_ID=1087763012294-vpgp9edg8k1quh8ijbvahc6be9dm47mu.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=google-client-id
+GOOGLE_CLIENT_SECRET=google-client-secret
 GOOGLE_CALLBACK_URL=https://nextpay-production.up.railway.app/api/auth/google/callback
 ```
 
