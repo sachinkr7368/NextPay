@@ -11,6 +11,18 @@ export const metadata: Metadata = {
   description: 'Launch your SaaS product faster with NextPay - a complete starter with authentication, payments, and more.',
   keywords: ['saas', 'starter', 'nextjs', 'stripe', 'authentication'],
   authors: [{ name: 'NextPay' }],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.svg', sizes: '180x180' },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  themeColor: '#3B82F6',
+  viewport: 'width=device-width, initial-scale=1',
   openGraph: {
     title: 'NextPay - Production-Ready SaaS Starter',
     description: 'Launch your SaaS product faster with NextPay',
