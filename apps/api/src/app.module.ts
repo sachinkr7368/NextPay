@@ -22,7 +22,7 @@ import { AdminModule } from './admin/admin.module';
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: config.get('NODE_ENV') !== 'production',
+        synchronize: true, // Enable table creation in production
       }),
     }),
     ThrottlerModule.forRoot([{
