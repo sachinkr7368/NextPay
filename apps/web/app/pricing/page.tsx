@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { PricingCard } from '@/components/pricing-card'
 import { useToast } from '@/components/ui/use-toast'
+import { Check } from 'lucide-react'
 import apiClient from '@/lib/axios'
 import useSWR from 'swr'
 
@@ -14,7 +15,18 @@ export default function PricingPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState<string>('free')
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  
   const { data: pricingData } = useSWR('/payments/plans', fetcher)
+  const { data: subscription } = useSWR('/payments/subscription', fetcher)
+
+  // Update current plan when subscription data changes
+  useEffect(() => {
+    if (subscription?.plan) {
+      setCurrentPlan(subscription.plan)
+    }
+  }, [subscription])
 
   const plans = pricingData?.plans || [
     {
@@ -70,6 +82,36 @@ export default function PricingPage() {
       return
     }
 
+    const planName = plan.name.toLowerCase()
+    
+    // Check if user is already on this plan
+    if (currentPlan === planName) {
+      toast({
+        title: `Already on ${plan.name} Plan`,
+        description: `You are currently using the ${plan.name} plan.`,
+      })
+      return
+    }
+
+    // Check if trying to downgrade (not allowed for now)
+    if (currentPlan === 'enterprise' && planName === 'pro') {
+      toast({
+        title: 'Downgrade Not Available',
+        description: 'Please contact support to downgrade your plan.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (currentPlan === 'pro' && planName === 'free') {
+      toast({
+        title: 'Downgrade Not Available',
+        description: 'Please contact support to downgrade your plan.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     if (plan.priceId === null) {
       toast({
         title: 'Already on free plan',
@@ -78,7 +120,7 @@ export default function PricingPage() {
       return
     }
 
-    setLoading(true)
+    setLoadingPlan(planName)
     try {
       const response = await apiClient.post('/payments/create-checkout-session', {
         priceId: plan.priceId,
@@ -94,7 +136,7 @@ export default function PricingPage() {
         variant: 'destructive',
       })
     } finally {
-      setLoading(false)
+      setLoadingPlan(null)
     }
   }
 
@@ -107,22 +149,44 @@ export default function PricingPage() {
             Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that's right for you. Upgrade or downgrade at any time.
+            Choose the plan that's right for you. Upgrade anytime, contact support for downgrades.
           </p>
+          {currentPlan && currentPlan !== 'free' && (
+            <div className="mt-6 inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg">
+              <Check className="mr-2 h-4 w-4" />
+              You're currently on the {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan
+            </div>
+          )}
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan: any) => (
-            <PricingCard
-              key={plan.name}
-              name={plan.name}
-              description={plan.description}
-              price={plan.price}
-              features={plan.features}
-              popular={plan.popular}
-              onSelect={() => handleSelectPlan(plan)}
-            />
-          ))}
+          {plans.map((plan: any) => {
+            const planName = plan.name.toLowerCase()
+            const isCurrentPlan = currentPlan === planName
+            const isUpgrade = 
+              (currentPlan === 'free' && planName === 'pro') ||
+              (currentPlan === 'free' && planName === 'enterprise') ||
+              (currentPlan === 'pro' && planName === 'enterprise')
+            const isDowngrade = 
+              (currentPlan === 'enterprise' && planName === 'pro') ||
+              (currentPlan === 'pro' && planName === 'free') ||
+              (currentPlan === 'enterprise' && planName === 'free')
+            
+            return (
+              <PricingCard
+                key={plan.name}
+                name={plan.name}
+                description={plan.description}
+                price={plan.price}
+                features={plan.features}
+                popular={plan.popular && !isCurrentPlan}
+                onSelect={() => handleSelectPlan(plan)}
+                isCurrentPlan={isCurrentPlan}
+                isLoading={loadingPlan === planName}
+                isDisabled={isCurrentPlan || isDowngrade}
+              />
+            )
+          })}
         </div>
 
         <div className="mt-16 text-center text-muted-foreground">

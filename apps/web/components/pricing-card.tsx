@@ -9,6 +9,9 @@ interface PricingCardProps {
   features: string[]
   popular?: boolean
   onSelect: () => void
+  isCurrentPlan?: boolean
+  isLoading?: boolean
+  isDisabled?: boolean
 }
 
 export function PricingCard({ 
@@ -17,14 +20,30 @@ export function PricingCard({
   price, 
   features, 
   popular = false,
-  onSelect 
+  onSelect,
+  isCurrentPlan = false,
+  isLoading = false,
+  isDisabled = false
 }: PricingCardProps) {
   return (
-    <Card className={`relative ${popular ? 'border-primary shadow-lg scale-105' : ''}`}>
-      {popular && (
+    <Card className={`relative ${
+      popular ? 'border-primary shadow-lg scale-105' : ''
+    } ${
+      isCurrentPlan ? 'border-green-500 bg-green-50 dark:bg-green-950' : ''
+    } ${
+      isDisabled ? 'opacity-60' : ''
+    }`}>
+      {popular && !isCurrentPlan && (
         <div className="absolute -top-4 left-0 right-0 flex justify-center">
           <span className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full">
             Most Popular
+          </span>
+        </div>
+      )}
+      {isCurrentPlan && (
+        <div className="absolute -top-4 left-0 right-0 flex justify-center">
+          <span className="bg-green-500 text-white text-sm font-medium px-3 py-1 rounded-full">
+            Current Plan
           </span>
         </div>
       )}
@@ -49,10 +68,22 @@ export function PricingCard({
       <CardFooter>
         <Button 
           className="w-full" 
-          variant={popular ? 'default' : 'outline'}
+          variant={
+            isCurrentPlan ? 'secondary' : 
+            popular ? 'default' : 'outline'
+          }
           onClick={onSelect}
+          disabled={isDisabled || isLoading}
         >
-          {price === 'Free' ? 'Get Started' : 'Subscribe'}
+          {isLoading ? (
+            'Processing...'
+          ) : isCurrentPlan ? (
+            'Current Plan'
+          ) : price === 'Free' ? (
+            'Get Started'
+          ) : (
+            'Subscribe'
+          )}
         </Button>
       </CardFooter>
     </Card>
