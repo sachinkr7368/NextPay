@@ -8,6 +8,7 @@ import {
   Response,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -44,7 +45,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
-  async googleAuthRedirect(@Request() req, @Response() res) {
+  async googleAuthRedirect(@Request() req: ExpressRequest, @Response() res: ExpressResponse) {
     const { access_token } = await this.authService.googleLogin(req);
     
     // Redirect to frontend with token

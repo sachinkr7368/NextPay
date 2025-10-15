@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { User, SubscriptionPlan } from '../users/entities/user.entity';
 
 @Injectable()
 export class AdminService {
@@ -33,13 +33,13 @@ export class AdminService {
   async getStats() {
     const totalUsers = await this.usersRepository.count();
     const freeUsers = await this.usersRepository.count({
-      where: { plan: 'free' },
+      where: { plan: SubscriptionPlan.FREE },
     });
     const proUsers = await this.usersRepository.count({
-      where: { plan: 'pro' },
+      where: { plan: SubscriptionPlan.PRO },
     });
     const enterpriseUsers = await this.usersRepository.count({
-      where: { plan: 'enterprise' },
+      where: { plan: SubscriptionPlan.ENTERPRISE },
     });
 
     return {

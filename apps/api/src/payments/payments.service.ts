@@ -11,8 +11,8 @@ export class PaymentsService {
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
-    this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2024-12-18.acacia',
+    this.stripe = new Stripe(this.configService.get<string>('STRIPE_SECRET_KEY') || '', {
+      apiVersion: '2023-10-16',
     });
   }
 
@@ -83,7 +83,7 @@ export class PaymentsService {
     return {
       plan: user.plan,
       status: subscription.status,
-      amount: subscription.items.data[0]?.price.unit_amount / 100,
+      amount: (subscription.items.data[0]?.price.unit_amount || 0) / 100,
       nextBillingDate: new Date(subscription.current_period_end * 1000),
       customerId: user.stripeCustomerId,
     };
@@ -101,7 +101,7 @@ export class PaymentsService {
       limit: 10,
     });
 
-    return invoices.data.map((invoice) => ({
+    return invoices.data.map((invoice: any) => ({
       id: invoice.id,
       amount: invoice.amount_paid / 100,
       created: invoice.created * 1000,
@@ -144,7 +144,9 @@ export class PaymentsService {
   }
 
   private async handleCheckoutComplete(session: Stripe.Checkout.Session) {
-    const userId = session.metadata.userId;
+    const userId = session.metadata?.userId;
+    if (!userId) return;
+    
     const subscription = await this.stripe.subscriptions.retrieve(
       session.subscription as string,
     );
@@ -181,7 +183,7 @@ export class PaymentsService {
         userId,
         'free',
         customer.id,
-        null,
+        undefined,
       );
     }
   }

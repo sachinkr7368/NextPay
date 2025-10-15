@@ -6,10 +6,11 @@ import {
   UseGuards,
   Request,
   Headers,
-  RawBodyRequest,
   Req,
 } from '@nestjs/common';
+import type { RawBodyRequest } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Request as ExpressRequest } from 'express';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCheckoutDto } from './dto/create-checkout.dto';
@@ -24,7 +25,7 @@ export class PaymentsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create Stripe checkout session' })
   createCheckoutSession(
-    @Request() req,
+    @Request() req: any,
     @Body() createCheckoutDto: CreateCheckoutDto,
   ) {
     return this.paymentsService.createCheckoutSession(
@@ -37,7 +38,7 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create Stripe billing portal session' })
-  createPortalSession(@Request() req) {
+  createPortalSession(@Request() req: any) {
     return this.paymentsService.createPortalSession(req.user.id);
   }
 
@@ -45,7 +46,7 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user subscription details' })
-  getSubscription(@Request() req) {
+  getSubscription(@Request() req: any) {
     return this.paymentsService.getSubscription(req.user.id);
   }
 
@@ -53,7 +54,7 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user invoices' })
-  getInvoices(@Request() req) {
+  getInvoices(@Request() req: any) {
     return this.paymentsService.getInvoices(req.user.id);
   }
 
@@ -61,9 +62,9 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Stripe webhook endpoint' })
   async handleWebhook(
     @Headers('stripe-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>,
+    @Req() req: RawBodyRequest<ExpressRequest>,
   ) {
-    return this.paymentsService.handleWebhook(signature, req.rawBody);
+    return this.paymentsService.handleWebhook(signature, req.rawBody || Buffer.from(''));
   }
 }
 
