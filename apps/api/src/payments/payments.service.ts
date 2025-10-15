@@ -114,6 +114,11 @@ export class PaymentsService {
   async handleWebhook(signature: string, payload: Buffer) {
     const webhookSecret = this.configService.get('STRIPE_WEBHOOK_SECRET');
     
+    if (!webhookSecret) {
+      console.error('STRIPE_WEBHOOK_SECRET not configured');
+      throw new Error('Webhook secret not configured');
+    }
+    
     let event: Stripe.Event;
     
     try {
@@ -122,22 +127,31 @@ export class PaymentsService {
         signature,
         webhookSecret,
       );
+      console.log(`Webhook received: ${event.type}`);
     } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
       throw new Error(`Webhook Error: ${err.message}`);
     }
 
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        await this.handleCheckoutComplete(session);
-        break;
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          await this.handleCheckoutComplete(session);
+          break;
+        }
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          await this.handleSubscriptionChange(subscription);
+          break;
+        }
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
       }
-      case 'customer.subscription.updated':
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
-        await this.handleSubscriptionChange(subscription);
-        break;
-      }
+    } catch (error) {
+      console.error(`Error processing webhook ${event.type}:`, error);
+      throw error;
     }
 
     return { received: true };
@@ -185,22 +199,58 @@ export class PaymentsService {
   }
 
   private async handleSubscriptionChange(subscription: Stripe.Subscription) {
-    const customer = await this.stripe.customers.retrieve(
-      subscription.customer as string,
-    );
-    
-    if (customer.deleted) return;
-
-    const userId = customer.metadata?.userId;
-    if (!userId) return;
-
-    if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
-      await this.usersService.updateSubscription(
-        userId,
-        'free',
-        customer.id,
-        undefined,
+    try {
+      const customer = await this.stripe.customers.retrieve(
+        subscription.customer as string,
       );
+      
+      if (customer.deleted) {
+        console.log('Customer deleted, skipping subscription update');
+        return;
+      }
+
+      const userId = customer.metadata?.userId;
+      if (!userId) {
+        console.error('No userId in customer metadata for subscription:', subscription.id);
+        return;
+      }
+
+      console.log(`Processing subscription change for user ${userId}: ${subscription.status}`);
+
+      if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+        await this.usersService.updateSubscription(
+          userId,
+          'free',
+          customer.id,
+          undefined,
+        );
+        console.log(`Downgraded user ${userId} to free plan`);
+      } else if (subscription.status === 'active') {
+        // If subscription is active, sync the plan based on price ID
+        const priceId = subscription.items.data[0]?.price?.id;
+        if (priceId) {
+          const proPriceId = this.configService.get('STRIPE_PRICE_PRO');
+          const enterprisePriceId = this.configService.get('STRIPE_PRICE_ENTERPRISE');
+          
+          let plan = 'free';
+          if (priceId === proPriceId) {
+            plan = 'pro';
+          } else if (priceId === enterprisePriceId) {
+            plan = 'enterprise';
+          }
+          
+          await this.usersService.updateSubscription(
+            userId,
+            plan,
+            customer.id,
+            subscription.id,
+          );
+          console.log(`Updated user ${userId} to ${plan} plan`);
+        }
+      }
+    } catch (error) {
+      console.error('Error in handleSubscriptionChange:', error);
+      throw error;
     }
   }
 
