@@ -7,8 +7,11 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Configure raw body parsing for Stripe webhooks
-  app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+  // Configure raw body parsing for Stripe webhooks - must be before other middleware
+  app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '10mb' }));
+  
+  // Configure JSON parsing for all other routes
+  app.use(express.json({ limit: '10mb' }));
 
   // Enable CORS
   app.enableCors({
