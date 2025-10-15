@@ -199,30 +199,30 @@ export class PaymentsService {
     };
 
     // Test if Stripe prices exist
-    const priceTests = {};
-    const prices = ['STRIPE_PRICE_PRO', 'STRIPE_PRICE_ENTERPRISE', 'STRIPE_PRICE_FREE'];
-    
-    for (const priceKey of prices) {
-      const priceId = this.configService.get(priceKey);
-      if (priceId) {
-        try {
-          const price = await this.stripe.prices.retrieve(priceId);
-          priceTests[priceKey] = {
-            exists: true,
-            id: price.id,
-            amount: price.unit_amount,
-            currency: price.currency,
-            active: price.active,
-          };
-        } catch (error) {
-          priceTests[priceKey] = {
-            exists: false,
-            id: priceId,
-            error: error.message,
-          };
+        const priceTests: Record<string, any> = {};
+        const prices = ['STRIPE_PRICE_PRO', 'STRIPE_PRICE_ENTERPRISE', 'STRIPE_PRICE_FREE'];
+        
+        for (const priceKey of prices) {
+          const priceId = this.configService.get(priceKey);
+          if (priceId) {
+            try {
+              const price = await this.stripe.prices.retrieve(priceId);
+              priceTests[priceKey] = {
+                exists: true,
+                id: price.id,
+                amount: price.unit_amount,
+                currency: price.currency,
+                active: price.active,
+              };
+            } catch (error: any) {
+              priceTests[priceKey] = {
+                exists: false,
+                id: priceId,
+                error: error.message,
+              };
+            }
+          }
         }
-      }
-    }
 
     return {
       ...config,
