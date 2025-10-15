@@ -18,7 +18,7 @@ export default function BillingPage() {
 
   useEffect(() => {
     setMounted(true)
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('token')
     if (!token) {
       router.push('/auth/signin?redirect=/dashboard/billing')
     }

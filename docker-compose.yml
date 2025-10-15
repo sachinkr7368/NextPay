@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   db:
@@ -68,6 +66,24 @@ services:
     networks:
       - nextpay-network
 
+  # pgAdmin Database Management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nextpay-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - nextpay-network
+    depends_on:
+      - db
+
   # NGINX Reverse Proxy
   nginx:
     image: nginx:alpine
@@ -85,6 +101,7 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:
 
 networks:
   nextpay-network:

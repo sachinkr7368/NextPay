@@ -1,0 +1,24 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nextpay-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - nextpay-network
+    depends_on:
+      - db
+
+volumes:
+  pgadmin_data:
+
+networks:
+  nextpay-network:
+    external: true

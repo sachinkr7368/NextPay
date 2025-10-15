@@ -27,7 +27,7 @@ export default function SignInPage() {
 
     try {
       const response = await apiClient.post('/auth/login', formData)
-      localStorage.setItem('access_token', response.data.access_token)
+      localStorage.setItem('token', response.data.access_token)
       
       toast({
         title: 'Success',

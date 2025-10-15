@@ -21,15 +21,20 @@ export function Navbar() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      // In real app, decode token or fetch user data
-      setUser({ name: 'User', email: 'user@example.com' })
+    const token = localStorage.getItem('token')
+    const storedUser = localStorage.getItem('user')
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser))
+      } catch {
+        setUser({ name: 'User', email: 'user@example.com' })
+      }
     }
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token')
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
     router.push('/auth/signin')
   }

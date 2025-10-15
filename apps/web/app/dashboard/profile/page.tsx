@@ -23,7 +23,7 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('token')
     if (!token) {
       router.push('/auth/signin?redirect=/dashboard/profile')
       return
@@ -51,7 +51,9 @@ export default function ProfilePage() {
     setLoading(true)
 
     try {
-      await apiClient.patch('/users/me', formData)
+      // Don't send email in update request as it's not allowed by the backend
+      const { email, ...updateData } = formData
+      await apiClient.patch('/users/me', updateData)
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
@@ -115,9 +117,13 @@ export default function ProfilePage() {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      disabled
+                      className="bg-muted cursor-not-allowed"
                       placeholder="you@example.com"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Email cannot be changed. Contact support if you need to update your email.
+                    </p>
                   </div>
 
                   <div className="space-y-2">

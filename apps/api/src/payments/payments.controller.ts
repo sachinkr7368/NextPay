@@ -66,5 +66,11 @@ export class PaymentsController {
   ) {
     return this.paymentsService.handleWebhook(signature, req.rawBody || Buffer.from(''));
   }
+
+  @Get('debug/config')
+  @ApiOperation({ summary: 'Debug Stripe configuration' })
+  async debugConfig() {
+    return this.paymentsService.debugConfig();
+  }
 }
 

@@ -187,5 +187,47 @@ export class PaymentsService {
       );
     }
   }
+
+  async debugConfig() {
+    const config = {
+      stripeSecretKey: this.configService.get('STRIPE_SECRET_KEY') ? '✅ Set' : '❌ Missing',
+      stripePricePro: this.configService.get('STRIPE_PRICE_PRO') || '❌ Missing',
+      stripePriceEnterprise: this.configService.get('STRIPE_PRICE_ENTERPRISE') || '❌ Missing',
+      stripePriceFree: this.configService.get('STRIPE_PRICE_FREE') || '❌ Missing',
+      stripeWebhookSecret: this.configService.get('STRIPE_WEBHOOK_SECRET') ? '✅ Set' : '❌ Missing',
+      frontendUrl: this.configService.get('FRONTEND_URL') || '❌ Missing',
+    };
+
+    // Test if Stripe prices exist
+    const priceTests = {};
+    const prices = ['STRIPE_PRICE_PRO', 'STRIPE_PRICE_ENTERPRISE', 'STRIPE_PRICE_FREE'];
+    
+    for (const priceKey of prices) {
+      const priceId = this.configService.get(priceKey);
+      if (priceId) {
+        try {
+          const price = await this.stripe.prices.retrieve(priceId);
+          priceTests[priceKey] = {
+            exists: true,
+            id: price.id,
+            amount: price.unit_amount,
+            currency: price.currency,
+            active: price.active,
+          };
+        } catch (error) {
+          priceTests[priceKey] = {
+            exists: false,
+            id: priceId,
+            error: error.message,
+          };
+        }
+      }
+    }
+
+    return {
+      ...config,
+      priceTests,
+    };
+  }
 }
 

@@ -30,7 +30,7 @@ export default function PricingPage() {
       name: 'Pro',
       description: 'For growing businesses',
       price: '$29',
-      priceId: 'price_pro',
+      priceId: 'price_1SI58JLV9XDn5rbH7mHIsqWj',
       features: [
         '10 users',
         'All features',
@@ -45,7 +45,7 @@ export default function PricingPage() {
       name: 'Enterprise',
       description: 'For large organizations',
       price: '$99',
-      priceId: 'price_enterprise',
+      priceId: 'price_1SI5BRLV9XDn5rbH3yQsOsLs',
       features: [
         'Unlimited users',
         'All features',
@@ -60,7 +60,7 @@ export default function PricingPage() {
   ]
 
   const handleSelectPlan = async (plan: typeof plans[0]) => {
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('token')
     if (!token) {
       router.push('/auth/signin?redirect=/pricing')
       return

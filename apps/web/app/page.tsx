@@ -107,25 +107,46 @@ export default function HomePage() {
           <p className="text-xl text-muted-foreground mb-8">
             Start with a free plan and upgrade as you grow.
           </p>
-          <Link href="/auth/signup">
-            <Button size="lg">
-              Get Started Now
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link href="/auth/signup">
+              <Button size="lg">
+                Get Started Now
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/docs">
+              <Button size="lg" variant="outline">
+                View Documentation
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t mt-20">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2">
               <CreditCard className="h-6 w-6" />
               <span className="font-bold">NextPay</span>
             </div>
+            <div className="flex gap-6 text-sm">
+              <Link href="/docs" className="text-muted-foreground hover:text-primary transition-colors">
+                Documentation
+              </Link>
+              <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors">
+                Pricing
+              </Link>
+              <Link href="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+              <a href="http://localhost:3001/api/docs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                API Docs
+              </a>
+            </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 NextPay. All rights reserved.
+              © 2025 NextPay. All rights reserved.
             </p>
           </div>
         </div>
