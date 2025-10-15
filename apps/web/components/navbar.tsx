@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { CreditCard, LogOut, User } from 'lucide-react'
+import { CreditCard, LogOut, User, Moon, Sun, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,14 +11,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useEffect, useState } from 'react'
+import { useTheme } from 'next-themes'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const { setTheme, theme } = useTheme()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -77,7 +84,8 @@ export function Navbar() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -110,6 +118,33 @@ export function Navbar() {
                     <CreditCard className="mr-2 h-4 w-4" />
                     <span>Billing</span>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      <span className="ml-6">Theme</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
+                          <Sun className="mr-2 h-4 w-4" />
+                          <span>Light</span>
+                          {theme === 'light' && <span className="ml-auto">✓</span>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')} className="cursor-pointer">
+                          <Moon className="mr-2 h-4 w-4" />
+                          <span>Dark</span>
+                          {theme === 'dark' && <span className="ml-auto">✓</span>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')} className="cursor-pointer">
+                          <Monitor className="mr-2 h-4 w-4" />
+                          <span>System</span>
+                          {theme === 'system' && <span className="ml-auto">✓</span>}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />

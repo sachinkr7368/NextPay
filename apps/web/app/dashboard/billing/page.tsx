@@ -6,15 +6,18 @@ import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useToast } from '@/components/ui/use-toast'
 import useSWR from 'swr'
 import apiClient from '@/lib/axios'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, RefreshCw } from 'lucide-react'
 
 const fetcher = (url: string) => apiClient.get(url).then(res => res.data)
 
 export default function BillingPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     setMounted(true)
@@ -24,7 +27,7 @@ export default function BillingPage() {
     }
   }, [router])
 
-  const { data: subscription } = useSWR('/payments/subscription', fetcher)
+  const { data: subscription, mutate } = useSWR('/payments/subscription', fetcher)
   const { data: invoices } = useSWR('/payments/invoices', fetcher)
 
   const handleManageBilling = async () => {
@@ -35,6 +38,35 @@ export default function BillingPage() {
       }
     } catch (error) {
       console.error('Failed to open billing portal', error)
+    }
+  }
+
+  const handleSyncSubscription = async () => {
+    setSyncing(true)
+    try {
+      const response = await apiClient.post('/payments/sync-subscription')
+      
+      if (response.data.synced) {
+        toast({
+          title: 'Subscription Updated',
+          description: `Your plan has been updated from ${response.data.oldPlan} to ${response.data.newPlan}`,
+        })
+        // Refresh subscription data
+        mutate()
+      } else {
+        toast({
+          title: 'No Changes',
+          description: response.data.message,
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Sync Failed',
+        description: error.response?.data?.message || 'Failed to sync subscription',
+        variant: 'destructive',
+      })
+    } finally {
+      setSyncing(false)
     }
   }
 
@@ -93,7 +125,7 @@ export default function BillingPage() {
                   </p>
                 )}
 
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   <Button onClick={() => router.push('/pricing')}>
                     Change Plan
                   </Button>
@@ -102,6 +134,23 @@ export default function BillingPage() {
                       Manage Billing
                     </Button>
                   )}
+                  <Button 
+                    variant="outline" 
+                    onClick={handleSyncSubscription}
+                    disabled={syncing}
+                  >
+                    {syncing ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Syncing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh Status
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </CardContent>

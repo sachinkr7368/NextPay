@@ -145,7 +145,10 @@ export class PaymentsService {
 
   private async handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const userId = session.metadata?.userId;
-    if (!userId) return;
+    if (!userId) {
+      console.error('No userId in checkout session metadata');
+      return;
+    }
     
     const subscription = await this.stripe.subscriptions.retrieve(
       session.subscription as string,
@@ -154,12 +157,25 @@ export class PaymentsService {
     const priceId = subscription.items.data[0].price.id;
     let plan = 'free';
     
-    if (priceId === this.configService.get('STRIPE_PRICE_PRO')) {
+    const proPriceId = this.configService.get('STRIPE_PRICE_PRO');
+    const enterprisePriceId = this.configService.get('STRIPE_PRICE_ENTERPRISE');
+    
+    console.log('Webhook - Price comparison:', {
+      receivedPriceId: priceId,
+      proPriceId,
+      enterprisePriceId,
+    });
+    
+    if (priceId === proPriceId) {
       plan = 'pro';
-    } else if (priceId === this.configService.get('STRIPE_PRICE_ENTERPRISE')) {
+    } else if (priceId === enterprisePriceId) {
       plan = 'enterprise';
+    } else {
+      console.warn(`Unknown price ID: ${priceId}`);
     }
 
+    console.log(`Updating user ${userId} to ${plan} plan`);
+    
     await this.usersService.updateSubscription(
       userId,
       plan,
@@ -186,6 +202,118 @@ export class PaymentsService {
         undefined,
       );
     }
+  }
+
+  async syncSubscription(userId: string) {
+    const user = await this.usersService.findOne(userId);
+    
+    if (!user.stripeSubscriptionId) {
+      return {
+        synced: false,
+        message: 'No active subscription to sync',
+        currentPlan: user.plan,
+      };
+    }
+
+    try {
+      const subscription = await this.stripe.subscriptions.retrieve(
+        user.stripeSubscriptionId,
+      );
+
+      const priceId = subscription.items.data[0].price.id;
+      let plan = 'free';
+
+      const proPriceId = this.configService.get('STRIPE_PRICE_PRO');
+      const enterprisePriceId = this.configService.get('STRIPE_PRICE_ENTERPRISE');
+
+      if (priceId === proPriceId) {
+        plan = 'pro';
+      } else if (priceId === enterprisePriceId) {
+        plan = 'enterprise';
+      }
+
+      // Only update if plan has changed
+      if (user.plan !== plan) {
+        await this.usersService.updateSubscription(
+          userId,
+          plan,
+          user.stripeCustomerId,
+          user.stripeSubscriptionId,
+        );
+
+        return {
+          synced: true,
+          message: 'Subscription synced successfully',
+          oldPlan: user.plan,
+          newPlan: plan,
+          subscriptionStatus: subscription.status,
+        };
+      }
+
+      return {
+        synced: false,
+        message: 'Subscription already up to date',
+        currentPlan: user.plan,
+        subscriptionStatus: subscription.status,
+      };
+    } catch (error: any) {
+      return {
+        synced: false,
+        message: 'Failed to sync subscription',
+        error: error.message,
+      };
+    }
+  }
+
+  async getPricingPlans() {
+    return {
+      plans: [
+        {
+          name: 'Free',
+          description: 'Perfect for trying out NextPay',
+          price: 'Free',
+          priceId: null,
+          features: [
+            '1 user',
+            'Basic features',
+            'Community support',
+            '1 GB storage',
+            'Email support',
+          ],
+        },
+        {
+          name: 'Pro',
+          description: 'For growing businesses',
+          price: '$15',
+          priceId: this.configService.get('STRIPE_PRICE_PRO'),
+          features: [
+            '10 users',
+            'All features',
+            'Priority support',
+            '100 GB storage',
+            'Advanced analytics',
+            'API access',
+          ],
+          popular: true,
+        },
+        {
+          name: 'Enterprise',
+          description: 'For large organizations',
+          price: '$25',
+          priceId: this.configService.get('STRIPE_PRICE_ENTERPRISE'),
+          features: [
+            'Unlimited users',
+            'All features',
+            '24/7 phone support',
+            'Unlimited storage',
+            'Advanced analytics',
+            'API access',
+            'Custom integrations',
+            'SLA guarantee',
+          ],
+        },
+      ],
+    };
   }
 
   async debugConfig() {

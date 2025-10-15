@@ -1,18 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { PricingCard } from '@/components/pricing-card'
 import { useToast } from '@/components/ui/use-toast'
 import apiClient from '@/lib/axios'
+import useSWR from 'swr'
+
+const fetcher = (url: string) => apiClient.get(url).then(res => res.data)
 
 export default function PricingPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const { data: pricingData } = useSWR('/payments/plans', fetcher)
 
-  const plans = [
+  const plans = pricingData?.plans || [
     {
       name: 'Free',
       description: 'Perfect for trying out NextPay',
@@ -30,7 +34,7 @@ export default function PricingPage() {
       name: 'Pro',
       description: 'For growing businesses',
       price: '$15',
-      priceId: 'price_1SI58JLV9XDn5rbH7mHIsqWj',
+      priceId: null,
       features: [
         '10 users',
         'All features',
@@ -45,7 +49,7 @@ export default function PricingPage() {
       name: 'Enterprise',
       description: 'For large organizations',
       price: '$25',
-      priceId: 'price_1SI5BRLV9XDn5rbH3yQsOsLs',
+      priceId: null,
       features: [
         'Unlimited users',
         'All features',
@@ -59,7 +63,7 @@ export default function PricingPage() {
     },
   ]
 
-  const handleSelectPlan = async (plan: typeof plans[0]) => {
+  const handleSelectPlan = async (plan: any) => {
     const token = localStorage.getItem('token')
     if (!token) {
       router.push('/auth/signin?redirect=/pricing')
@@ -108,7 +112,7 @@ export default function PricingPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => (
+          {plans.map((plan: any) => (
             <PricingCard
               key={plan.name}
               name={plan.name}

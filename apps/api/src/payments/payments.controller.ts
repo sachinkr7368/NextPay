@@ -58,6 +58,20 @@ export class PaymentsController {
     return this.paymentsService.getInvoices(req.user.id);
   }
 
+  @Post('sync-subscription')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Manually sync subscription status from Stripe' })
+  syncSubscription(@Request() req: any) {
+    return this.paymentsService.syncSubscription(req.user.id);
+  }
+
+  @Get('plans')
+  @ApiOperation({ summary: 'Get available pricing plans' })
+  getPricingPlans() {
+    return this.paymentsService.getPricingPlans();
+  }
+
   @Post('webhook')
   @ApiOperation({ summary: 'Stripe webhook endpoint' })
   async handleWebhook(
