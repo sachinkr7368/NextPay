@@ -599,12 +599,12 @@ export default function DocsPage() {
                       <p className="text-muted-foreground mb-4">
                         Full Swagger documentation available at{' '}
                         <a 
-                          href="http://localhost:3001/api/docs" 
+                          href="https://nextpay-production.up.railway.app/api/docs" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-primary hover:underline"
                         >
-                          http://localhost:3001/api/docs
+                          https://nextpay-production.up.railway.app/api/docs
                         </a>
                       </p>
                     </div>
