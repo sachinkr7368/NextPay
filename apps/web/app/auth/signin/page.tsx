@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { CreditCard } from 'lucide-react'
 import apiClient from '@/lib/axios'
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -146,6 +146,31 @@ export default function SignInPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
+        <div className="w-full max-w-md">
+          <div className="flex justify-center mb-8">
+            <Link href="/" className="flex items-center space-x-2">
+              <CreditCard className="h-8 w-8" />
+              <span className="text-2xl font-bold">NextPay</span>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-sm text-muted-foreground">Loading sign in...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 }
 
