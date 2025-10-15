@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -109,3 +109,19 @@ export default function AuthCallbackPage() {
   );
 }
 
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="text-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
+            <p className="text-sm text-gray-600">Loading authentication...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
+  );
+}

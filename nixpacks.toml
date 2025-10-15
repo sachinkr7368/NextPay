@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs", "npm"]
 
 [phases.install]
-cmds = ["cd apps/api && npm install --legacy-peer-deps"]
+cmds = ["cd apps/api && npm install --legacy-peer-deps --no-package-lock"]
 
 [phases.build]
 cmds = ["cd apps/api && npm run build"]
