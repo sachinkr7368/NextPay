@@ -131,7 +131,7 @@ export default function BillingPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="font-semibold">${(invoice.amount / 100).toFixed(2)}</p>
+                        <p className="font-semibold">${(invoice.amount).toFixed(2)}</p>
                         <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
                           {invoice.status}
                         </Badge>
