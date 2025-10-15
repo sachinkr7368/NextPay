@@ -27,7 +27,10 @@ export default function BillingPage() {
     }
   }, [router])
 
-  const { data: subscription, mutate } = useSWR('/payments/subscription', fetcher)
+  const { data: subscription, mutate } = useSWR('/payments/subscription', fetcher, {
+    refreshInterval: 0,
+    revalidateOnFocus: true,
+  })
   const { data: invoices } = useSWR('/payments/invoices', fetcher)
 
   const handleManageBilling = async () => {
@@ -84,6 +87,22 @@ export default function BillingPage() {
         </div>
 
         <div className="grid gap-6">
+          {subscription?.plan === 'free' && (
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    Just purchased a subscription?
+                  </h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                    If you just completed a purchase but still see "Free Plan", click the <strong>"Refresh Status"</strong> button below to sync your subscription from Stripe.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <Card>
             <CardHeader>
               <CardTitle>Current Plan</CardTitle>
@@ -95,7 +114,9 @@ export default function BillingPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold">{subscription?.plan || 'Free'} Plan</h3>
+                    <h3 className="text-2xl font-bold capitalize">
+                      {subscription?.plan || 'Free'} Plan
+                    </h3>
                     <p className="text-muted-foreground">
                       {subscription?.status === 'active' ? (
                         <Badge className="mt-1">
@@ -110,11 +131,13 @@ export default function BillingPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    {subscription?.amount && (
+                    {subscription?.amount && subscription.amount > 0 ? (
                       <>
                         <p className="text-3xl font-bold">${subscription.amount}</p>
                         <p className="text-sm text-muted-foreground">per month</p>
                       </>
+                    ) : (
+                      <p className="text-lg text-muted-foreground">No charge</p>
                     )}
                   </div>
                 </div>
