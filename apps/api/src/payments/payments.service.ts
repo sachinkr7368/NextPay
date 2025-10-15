@@ -157,6 +157,34 @@ export class PaymentsService {
     return { received: true };
   }
 
+  // Railway-compatible webhook handler (skips signature verification)
+  async handleWebhookRailway(eventData: any) {
+    console.log(`Railway webhook received: ${eventData.type}`);
+    
+    try {
+      switch (eventData.type) {
+        case 'checkout.session.completed': {
+          const session = eventData.data.object;
+          await this.handleCheckoutComplete(session);
+          break;
+        }
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted': {
+          const subscription = eventData.data.object;
+          await this.handleSubscriptionChange(subscription);
+          break;
+        }
+        default:
+          console.log(`Unhandled event type: ${eventData.type}`);
+      }
+    } catch (error) {
+      console.error(`Error processing Railway webhook ${eventData.type}:`, error);
+      throw error;
+    }
+
+    return { received: true, mode: 'railway' };
+  }
+
   private async handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const userId = session.metadata?.userId;
     if (!userId) {
