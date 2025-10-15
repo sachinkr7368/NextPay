@@ -78,6 +78,15 @@ export class PaymentsController {
     @Headers('stripe-signature') signature: string,
     @Req() req: RawBodyRequest<ExpressRequest>,
   ) {
+    console.log('Webhook received:', {
+      hasSignature: !!signature,
+      hasRawBody: !!req.rawBody,
+      bodyType: typeof req.body,
+      rawBodyType: typeof req.rawBody,
+      bodyLength: req.body ? JSON.stringify(req.body).length : 0,
+      rawBodyLength: req.rawBody ? req.rawBody.length : 0,
+    });
+    
     return this.paymentsService.handleWebhook(signature, req.rawBody || Buffer.from(''));
   }
 
