@@ -14,6 +14,7 @@ A complete, production-ready SaaS starter built with modern technologies. Launch
 
 ## ✨ Features
 
+
 ### 🔐 Authentication
 
 - **JWT-based authentication** with secure token management
